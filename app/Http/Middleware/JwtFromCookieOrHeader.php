@@ -17,8 +17,6 @@ class JwtFromCookieOrHeader
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Log untuk debug
-        Log::info('JwtFromCookieOrHeader middleware executed');
 
         $token = null;
 
@@ -31,7 +29,6 @@ class JwtFromCookieOrHeader
 
         // If no token in header, try to get from cookie (Priority 2)
         if (!$token) {
-            // Try different ways to get cookie with new name 'accessToken'
             $token = $request->cookie('accessToken')
                 ?? $request->cookies->get('accessToken')
                 ?? $_COOKIE['accessToken'] ?? null;

@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('username')->unique();
+            $table->string('email')->unique();
             $table->string('password');
-            $table->string('avatar_image_id')->unique()->nullable();
+            $table->string('avatar')->nullable();
             $table->enum('role', ['USER', 'ADMIN'])->default('USER');
             $table->timestamps();
 
-            $table->foreign('avatar_image_id')->references('key')->on('avatar_images')->onDelete('set null');
             $table->index('username');
         });
     }

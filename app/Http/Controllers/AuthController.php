@@ -24,8 +24,7 @@ class AuthController extends Controller
         $accessToken = $request->authenticate();
         $user = Auth::guard('api')->user();
 
-        // Generate refresh token
-        $refreshToken = Str::random(64);
+        $refreshToken = Str::random(128);
 
         // Store session in database
         Session::create([
@@ -36,7 +35,6 @@ class AuthController extends Controller
             'expires_at' => now()->addDays(30),
         ]);
 
-        // Use helper to add cookies
         return ResponseHelper::withAuthCookies(
             $this->success([
                 'accessToken' => $accessToken,
@@ -57,9 +55,11 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $user = $request->user();
+        $refreshToken = $this->getRefreshTokenFromRequest($request);
 
-        // Get refresh token from cookie (use refreshToken cookie, not accessToken)
-        $refreshToken = $request->cookie('refreshToken');
+        if (!$refreshToken) {
+            return $this->error('Refresh token not provided', 400);
+        }
 
         // Delete session from database
         if ($refreshToken) {
@@ -82,18 +82,7 @@ class AuthController extends Controller
      */
     public function refreshToken(Request $request)
     {
-        // Get refresh token from Bearer header or cookie
-        // Priority: Bearer token in Authorization header > Cookie
-        $refreshToken = null;
-
-        // Check Authorization header first (Bearer token)
-        $bearerToken = $request->bearerToken();
-        if ($bearerToken) {
-            $refreshToken = $bearerToken;
-        } else {
-            // Fall back to cookie
-            $refreshToken = $request->cookie('refreshToken');
-        }
+        $refreshToken = $this->getRefreshTokenFromRequest($request);
 
         if (!$refreshToken) {
             return $this->error('Refresh token not provided', 400);
@@ -110,12 +99,10 @@ class AuthController extends Controller
             return $this->error('Invalid or expired refresh token', 401);
         }
 
-        // Generate new access token
         $user = $session->user;
         $newAccessToken = Auth::guard('api')->login($user);
 
-        // Generate new refresh token
-        $newRefreshToken = Str::random(64);
+        $newRefreshToken = Str::random(128);
 
         // Update session
         $session->update([
@@ -125,7 +112,6 @@ class AuthController extends Controller
             'expires_at' => now()->addDays(30),
         ]);
 
-        // Use helper to add cookies
         return ResponseHelper::withAuthCookies(
             $this->success([
                 'accessToken' => $newAccessToken,
@@ -151,7 +137,20 @@ class AuthController extends Controller
             'userId' => $user->id,
             'name' => $user->name,
             'username' => $user->username,
+            'avatar' => $user->avatar,
             'role' => $user->role,
         ], "Success");
+    }
+
+    private function getRefreshTokenFromRequest(Request $request): ?string
+    {
+        // Check Authorization header first (Bearer token)
+        $bearerToken = $request->bearerToken();
+        if ($bearerToken) {
+            return $bearerToken;
+        }
+
+        // Fallback to cookie
+        return $request->cookie('refreshToken');
     }
 }

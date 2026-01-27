@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,8 +20,9 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name',
         'username',
+        'email',
         'password',
-        'avatar_image_id',
+        'avatar',
         'role',
     ];
 
@@ -47,14 +47,6 @@ class User extends Authenticatable implements JWTSubject
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Get the avatar image associated with the user.
-     */
-    public function avatarImage()
-    {
-        return $this->belongsTo(AvatarImage::class, 'avatar_image_id', 'key');
     }
 
     /**

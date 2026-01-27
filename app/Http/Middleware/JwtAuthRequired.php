@@ -20,7 +20,7 @@ class JwtAuthRequired
         if (!$request->user()) {
             return response()->json([
                 'statusCode' => 401,
-                'message' => 'Unauthenticated',
+                'message' => 'Authentication required please provide a valid JWT token.',
                 'data' => null,
             ], 401);
         }

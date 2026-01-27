@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
+use Faker\Factory as Faker;
+
 class UserSeeder extends Seeder
 {
     /**
@@ -13,20 +15,22 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create admin user
-        User::create([
-            'name' => 'Admin User',
-            'username' => 'admin',
-            'password' => Hash::make('password'),
-            'role' => 'ADMIN',
-        ]);
 
-        // Create regular user
-        User::create([
-            'name' => 'Test User',
-            'username' => 'testuser',
-            'password' => Hash::make('password'),
-            'role' => 'USER',
-        ]);
+        $faker = Faker::create('id_ID');
+
+        $initialUsers = [
+            [
+                'name' => 'Atmin SCIT',
+                'username' => 'admin',
+                'email' => $faker->unique()->safeEmail(),
+                'password' => Hash::make('admin'),
+                'role' => 'ADMIN',
+            ],
+        ];
+        foreach ($initialUsers as $userData) {
+            $hashUsername = md5(strtolower(trim($userData['username'])));
+            $avatarUrl = "https://www.gravatar.com/avatar/{$hashUsername}?d=retro&s=300";
+            User::create(array_merge($userData, ['avatar' => $avatarUrl]));
+        }
     }
 }
