@@ -12,6 +12,16 @@ class User extends Authenticatable implements JWTSubject
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    protected static function booted()
+    {
+        static::creating(function (User $user) {
+            if (empty($user->avatar)) {
+                $hash = md5(strtolower(trim($user->email)));
+                $user->avatar = "https://www.gravatar.com/avatar/{$hash}?d=retro&s=300";
+            }
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *

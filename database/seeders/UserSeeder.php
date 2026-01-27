@@ -24,13 +24,11 @@ class UserSeeder extends Seeder
                 'username' => 'admin',
                 'email' => $faker->unique()->safeEmail(),
                 'password' => Hash::make('admin'),
-                'role' => 'ADMIN',
+                'role' => 'SUPER_ADMIN',
             ],
         ];
         foreach ($initialUsers as $userData) {
-            $hashUsername = md5(strtolower(trim($userData['username'])));
-            $avatarUrl = "https://www.gravatar.com/avatar/{$hashUsername}?d=retro&s=300";
-            User::create(array_merge($userData, ['avatar' => $avatarUrl]));
+            User::create($userData);
         }
     }
 }
