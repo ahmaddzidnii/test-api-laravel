@@ -16,6 +16,8 @@ class UserController extends Controller
 
     public function getUserInfo(Request $request)
     {
+        $this->authorize('viewAny', User::class);
+
         $users = User::paginate(10);
         return $this->successWithPagination(UserResource::collection($users->items()), $users, "Users retrieved successfully");
     }
@@ -29,6 +31,8 @@ class UserController extends Controller
             return $this->error(null, 'User not found', 404);
         }
 
+        $this->authorize('update', $user);
+
         $user->role = $validated['role'];
         $user->save();
 
@@ -37,6 +41,8 @@ class UserController extends Controller
 
     public function createUser(CreateUserRequest $request)
     {
+        $this->authorize('create', User::class);
+
         $validated = $request->validated();
 
         $user = User::firstOrCreate(
@@ -49,7 +55,6 @@ class UserController extends Controller
             ]
         );
 
-        // Update field lain tapi JANGAN password
         $user->update([
             'name' => $validated['name'],
         ]);
@@ -59,10 +64,13 @@ class UserController extends Controller
 
     public function deleteUser(Request $request, $userId)
     {
-        $user = User::find($userId);
+        $user = User::whereKey($userId)->first();
+
         if (!$user) {
-            return $this->error(null, 'User not found', 404);
+            return $this->error('User not found', 404);
         }
+
+        $this->authorize('delete', $user);
 
         $user->delete();
 

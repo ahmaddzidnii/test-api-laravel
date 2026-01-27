@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Project;
+use App\Models\User;
+use App\Policies\ProjectPolicy;
+use App\Policies\UserPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +24,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        /**
+         * Register Policies
+         */
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Project::class, ProjectPolicy::class);
+
+        /**
+         * Beforre Laravel Gate checks any policy, this callback will be executed first.
+         * So, if the user is super admin, they will be granted all permissions.
+         */
+        Gate::before(function (User $user) {
+            if ($user->isSuperAdmin()) {
+                return true;
+            }
+        });
     }
 }

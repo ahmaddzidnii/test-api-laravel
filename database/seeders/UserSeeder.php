@@ -15,15 +15,18 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-
         $faker = Faker::create('id_ID');
+        $email = $faker->unique()->safeEmail();
+        $avatarHash = md5(strtolower(trim($email)));
+        $avatarUrl = "https://www.gravatar.com/avatar/{$avatarHash}?d=retro&s=300";
 
         $initialUsers = [
             [
                 'name' => 'Atmin SCIT',
                 'username' => 'admin',
-                'email' => $faker->unique()->safeEmail(),
-                'password' => Hash::make('admin'),
+                'email' => $email,
+                'password' => Hash::make('12345678'),
+                'avatar' => $avatarUrl,
                 'role' => 'SUPER_ADMIN',
             ],
         ];

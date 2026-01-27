@@ -13,15 +13,15 @@ use Illuminate\Support\Str;
 class AuthController extends Controller
 {
     use HttpResponses;
-    /**
-     * Handle a login request to the application.
-     *
-     * @param  \App\Http\Requests\LoginRequest  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function login(LoginRequest $request)
     {
         $accessToken = $request->authenticate();
+
+        if (!$accessToken) {
+            return $this->error('Invalid username or password', 401);
+        }
+
         $user = Auth::guard('api')->user();
 
         $refreshToken = Str::random(128);
@@ -39,19 +39,13 @@ class AuthController extends Controller
             $this->success([
                 'accessToken' => $accessToken,
                 'refreshToken' => $refreshToken,
-            ], 'User loggedin successfully', 201),
+            ], 'User loggedin successfully', 200),
             $accessToken,
             $refreshToken,
             Auth::guard('api')->factory()->getTTL()
         );
     }
 
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function logout(Request $request)
     {
         $user = $request->user();
@@ -74,12 +68,6 @@ class AuthController extends Controller
         );
     }
 
-    /**
-     * Refresh a token.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function refreshToken(Request $request)
     {
         $refreshToken = $this->getRefreshTokenFromRequest($request);
@@ -116,19 +104,13 @@ class AuthController extends Controller
             $this->success([
                 'accessToken' => $newAccessToken,
                 'refreshToken' => $newRefreshToken,
-            ], 'Tokens refreshed successfully'),
+            ], 'Tokens refreshed successfully', 200),
             (string) $newAccessToken,
             $newRefreshToken,
             Auth::guard('api')->factory()->getTTL()
         );
     }
 
-    /**
-     * Get the authenticated User.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function getUserInfo(Request $request)
     {
         $user = $request->user();

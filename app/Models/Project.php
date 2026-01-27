@@ -18,6 +18,7 @@ class Project extends Model
         'launch_year',
         'demo_url',
         'status',
+        'user_id',
     ];
 
     protected $casts = [
@@ -71,5 +72,13 @@ class Project extends Model
     public function testimonials()
     {
         return $this->hasMany(ProjectTestimonial::class);
+    }
+
+    /**
+     * Get the user who created the project.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

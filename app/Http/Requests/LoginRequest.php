@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\UnauthorizedException;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
@@ -34,14 +35,12 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate(): string
+    public function authenticate(): string | null
     {
         $credentials = $this->only('username', 'password');
 
         if (!$token = Auth::guard('api')->attempt($credentials)) {
-            throw ValidationException::withMessages([
-                'username' => __('auth.failed'),
-            ]);
+            return null;
         }
 
         return $token;

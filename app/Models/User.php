@@ -59,12 +59,30 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'SUPER_ADMIN';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'ADMIN';
+    }
+
     /**
      * Get the sessions for the user.
      */
     public function sessions()
     {
         return $this->hasMany(Session::class);
+    }
+
+    /**
+     * Get the projects created by the user.
+     */
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
     }
 
     /**
