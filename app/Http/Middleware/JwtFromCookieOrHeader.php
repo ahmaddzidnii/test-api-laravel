@@ -22,31 +22,29 @@ class JwtFromCookieOrHeader
 
         $token = null;
 
-        // Try to get token from Authorization header first
+        // Try to get token from Authorization header first (Priority 1)
         $authHeader = $request->header('Authorization', '');
         if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
             $token = $matches[1];
             Log::info('Token found in header');
         }
 
-        // If no token in header, try to get from cookie
+        // If no token in header, try to get from cookie (Priority 2)
         if (!$token) {
-            // Try different ways to get cookie
-            $token = $request->cookie('access_token')
-                ?? $request->cookies->get('access_token')
-                ?? $_COOKIE['access_token'] ?? null;
+            // Try different ways to get cookie with new name 'accessToken'
+            $token = $request->cookie('accessToken')
+                ?? $request->cookies->get('accessToken')
+                ?? $_COOKIE['accessToken'] ?? null;
 
             if ($token) {
                 Log::info('Token found in cookie');
             }
         }
 
-        // If still no token, return unauthorized
+        // If no token found, continue without authentication
         if (!$token) {
-            Log::info('No token found');
-            return response()->json([
-                'message' => 'Token not provided',
-            ], 401);
+            Log::info('No token found - continuing without authentication');
+            return $next($request);
         }
 
         try {

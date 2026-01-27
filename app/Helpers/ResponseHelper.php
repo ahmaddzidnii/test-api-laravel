@@ -48,8 +48,8 @@ class ResponseHelper
         int $accessTokenMinutes = 60
     ): JsonResponse {
         return $response
-            ->cookie('access_token', $accessToken, $accessTokenMinutes, '/', null, false, true, false, 'lax')
-            ->cookie('refresh_token', $refreshToken, 60 * 24 * 30, '/', null, false, true, false, 'lax');
+            ->cookie('accessToken', $accessToken, $accessTokenMinutes, '/', null, false, true, false, 'lax')
+            ->cookie('refreshToken', $refreshToken, 60 * 24 * 30, '/', null, false, true, false, 'lax');
     }
 
     /**
@@ -61,7 +61,7 @@ class ResponseHelper
     public static function clearAuthCookies(JsonResponse $response): JsonResponse
     {
         return $response
-            ->cookie('access_token', '', -1, '/', null, false, true, false, 'lax')
-            ->cookie('refresh_token', '', -1, '/', null, false, true, false, 'lax');
+            ->cookie('accessToken', '', -1, '/', null, false, true, false, 'lax')
+            ->cookie('refreshToken', '', -1, '/', null, false, true, false, 'lax');
     }
 }

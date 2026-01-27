@@ -6,18 +6,24 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ForceJsonResponse
+class JwtAuthRequired
 {
     /**
      * Handle an incoming request.
-     * Force all requests to expect JSON responses.
+     * This middleware ensures that the request has an authenticated user.
+     * Use this AFTER JwtFromCookieOrHeader middleware.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Force Accept: application/json header
-        $request->headers->set('Accept', 'application/json');
+        if (!$request->user()) {
+            return response()->json([
+                'statusCode' => 401,
+                'message' => 'Unauthenticated',
+                'data' => null,
+            ], 401);
+        }
 
         return $next($request);
     }

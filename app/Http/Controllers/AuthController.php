@@ -9,7 +9,6 @@ use App\Models\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -37,24 +36,12 @@ class AuthController extends Controller
             'expires_at' => now()->addDays(30),
         ]);
 
-        $response = [
-            'message' => 'Login successful',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'username' => $user->username,
-                'role' => $user->role,
-                'avatar_image_id' => $user->avatar_image_id,
-            ],
-            'access_token' => $accessToken,
-            'refresh_token' => $refreshToken,
-            'token_type' => 'bearer',
-            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
-        ];
-
         // Use helper to add cookies
         return ResponseHelper::withAuthCookies(
-            response()->json($response),
+            $this->success([
+                'accessToken' => $accessToken,
+                'refreshToken' => $refreshToken,
+            ], 'User loggedin successfully', 201),
             $accessToken,
             $refreshToken,
             Auth::guard('api')->factory()->getTTL()
@@ -69,15 +56,10 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        // Get user from request
         $user = $request->user();
 
-        if (!$user) {
-            return response()->json(['message' => 'User not authenticated'], 401);
-        }
-
-        // Get refresh token from cookie or request body
-        $refreshToken = $request->cookie('refresh_token') ?? $request->input('refresh_token');
+        // Get refresh token from cookie (use refreshToken cookie, not accessToken)
+        $refreshToken = $request->cookie('refreshToken');
 
         // Delete session from database
         if ($refreshToken) {
@@ -88,7 +70,7 @@ class AuthController extends Controller
 
         // Clear cookies and return response
         return ResponseHelper::clearAuthCookies(
-            response()->json(['message' => 'Successfully logged out'])
+            $this->success(null, 'Logged out successfully')
         );
     }
 
@@ -100,13 +82,21 @@ class AuthController extends Controller
      */
     public function refreshToken(Request $request)
     {
-        // Get refresh token from cookie or request body
-        $refreshToken = $request->cookie('refresh_token') ?? $request->input('refresh_token');
+        // Get refresh token from Bearer header or cookie
+        // Priority: Bearer token in Authorization header > Cookie
+        $refreshToken = null;
+
+        // Check Authorization header first (Bearer token)
+        $bearerToken = $request->bearerToken();
+        if ($bearerToken) {
+            $refreshToken = $bearerToken;
+        } else {
+            // Fall back to cookie
+            $refreshToken = $request->cookie('refreshToken');
+        }
 
         if (!$refreshToken) {
-            return response()->json([
-                'message' => 'Refresh token not provided',
-            ], 400);
+            return $this->error('Refresh token not provided', 400);
         }
 
         $hashedToken = hash('sha256', $refreshToken);
@@ -117,9 +107,7 @@ class AuthController extends Controller
             ->first();
 
         if (!$session) {
-            return response()->json([
-                'message' => 'Invalid or expired refresh token',
-            ], 401);
+            return $this->error('Invalid or expired refresh token', 401);
         }
 
         // Generate new access token
@@ -137,18 +125,13 @@ class AuthController extends Controller
             'expires_at' => now()->addDays(30),
         ]);
 
-        $response = [
-            'message' => 'Token refreshed successfully',
-            'access_token' => $newAccessToken,
-            'refresh_token' => $newRefreshToken,
-            'token_type' => 'bearer',
-            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
-        ];
-
         // Use helper to add cookies
         return ResponseHelper::withAuthCookies(
-            response()->json($response),
-            (string)  $newAccessToken,
+            $this->success([
+                'accessToken' => $newAccessToken,
+                'refreshToken' => $newRefreshToken,
+            ], 'Tokens refreshed successfully'),
+            (string) $newAccessToken,
             $newRefreshToken,
             Auth::guard('api')->factory()->getTTL()
         );
@@ -162,19 +145,13 @@ class AuthController extends Controller
      */
     public function getUserInfo(Request $request)
     {
-        // Get user from request (set by middleware)
         $user = $request->user();
 
-        if (!$user) {
-            return response()->json(['message' => 'Success ret'], 401);
-        }
-
         return $this->success([
-            'id' => $user->id,
+            'userId' => $user->id,
             'name' => $user->name,
             'username' => $user->username,
             'role' => $user->role,
-            'avatar_image_id' => $user->avatar_image_id,
-        ], "Successfully retrieved session data");
+        ], "Success");
     }
 }
