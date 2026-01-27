@@ -1,23 +1,20 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Middleware\JwtFromCookieOrHeader;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
     'prefix' => 'auth',
+    'controller' => AuthController::class,
 ], function () {
-    Route::get('/session', function () {
-        return ['status' => 'API is running'];
-    });
+    // Public routes
+    Route::post('/signin', 'login');
+    Route::post('/refresh', 'refreshToken');
 
-    Route::post('/signin', function () {
-        return ['status' => 'API is running'];
-    });
-
-    Route::post('/refresh', function () {
-        return ['status' => 'API is running'];
-    });
-
-    Route::post('/signout', function () {
-        return ['status' => 'API is running'];
+    // Protected routes - using custom middleware directly
+    Route::middleware(JwtFromCookieOrHeader::class)->group(function () {
+        Route::get('/session', 'getUserInfo');
+        Route::post('/signout', 'logout');
     });
 });
