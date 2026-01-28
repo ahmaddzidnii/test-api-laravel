@@ -34,10 +34,13 @@ class AppServiceProvider extends ServiceProvider
          * Beforre Laravel Gate checks any policy, this callback will be executed first.
          * So, if the user is super admin, they will be granted all permissions.
          */
-        Gate::before(function (User $user) {
-            if ($user->isSuperAdmin()) {
+        Gate::before(function (?User $user, string $ability) {
+            if ($user && $user->isSuperAdmin()) {
                 return true;
             }
+
+            // Return null to continue to policy check
+            return null;
         });
     }
 }

@@ -33,9 +33,20 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException $e) {
+            \Illuminate\Support\Facades\Log::error('AccessDeniedHttpException', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'previous' => $e->getPrevious() ? $e->getPrevious()->getMessage() : null,
+            ]);
+
             return response()->json([
                 'statusCode' => 403,
-                'message' => 'This action is unauthorized.'
+                'message' => 'This action is unauthorized.',
+                'debug' => config('app.debug') ? [
+                    'exception' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ] : null,
             ], 403);
         });
     })->create();

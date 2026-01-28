@@ -26,4 +26,32 @@ class Technology extends Model
     {
         return $this->belongsToMany(Project::class, 'project_technology');
     }
+
+    /**
+     * Search scope
+     */
+    public function scopeSearch($query, ?string $search)
+    {
+        if (!$search) {
+            return $query;
+        }
+
+        return $query->where('name', 'like', "%{$search}%");
+    }
+
+    /**
+     * Sorting scope (whitelisted)
+     */
+    public function scopeSort($query, ?string $sortBy, ?string $direction)
+    {
+        $allowedSorts = ['name', 'created_at'];
+
+        if (!in_array($sortBy, $allowedSorts)) {
+            return $query;
+        }
+
+        $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+
+        return $query->orderBy($sortBy, $direction);
+    }
 }

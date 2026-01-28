@@ -67,6 +67,16 @@ class Project extends Model
     }
 
     /**
+     * Get the thumbnail image for the project.
+     */
+    public function thumbnail()
+    {
+        return $this->hasOne(ProjectImage::class)
+            ->where('is_primary', true)
+            ->where('is_used', true);
+    }
+
+    /**
      * Get the testimonials for the project.
      */
     public function testimonials()

@@ -12,7 +12,7 @@ trait HttpResponses
             'statusCode' => $code,
             'message' => $message,
             'data' => $data,
-        ], $code);
+        ], $code, [], JSON_UNESCAPED_SLASHES);
     }
 
     public function error($message = "An error occurred", $code = 500, $error = null)
@@ -40,6 +40,6 @@ trait HttpResponses
                 'total'      => $paginator->total(),
                 'totalPages' => $paginator->lastPage(),
             ],
-        ], $code);
+        ], $code, [], JSON_UNESCAPED_SLASHES);
     }
 }
