@@ -43,9 +43,9 @@ Route::group([
         Route::post('/{projectId}/technologies', [ProjectController::class, 'syncProjectTechnologies']);
         Route::post('/{projectId}/details', [ProjectController::class, 'syncProjectDetails']);
 
-        Route::post('/{projectId}/testimonial', [ProjectController::class, 'createProjectTestimonial']);
-        Route::delete('/{projectId}/testimonial/{testimonialId}', [ProjectController::class, 'deleteProjectTestimonial']);
-        Route::patch('/{projectId}/testimonial/{testimonialId}', [ProjectController::class, 'updateProjectTestimonial']);
+        Route::post('/{projectId}/testimonials', [ProjectController::class, 'createProjectTestimonial']);
+        Route::delete('/{projectId}/testimonials/{testimonialId}', [ProjectController::class, 'deleteProjectTestimonial']);
+        Route::patch('/{projectId}/testimonials/{testimonialId}', [ProjectController::class, 'updateProjectTestimonial']);
 
         Route::post('/{projectId}/images/upload', [ProjectController::class, 'uploadProjectImage']);
         Route::patch('/{projectId}/images/{imageId}', [ProjectController::class, 'setPrimaryProjectImage']);
