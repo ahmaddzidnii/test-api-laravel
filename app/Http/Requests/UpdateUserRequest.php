@@ -35,4 +35,17 @@ class UpdateUserRequest extends FormRequest
             ],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'userId.required' => 'User ID is required',
+            'userId.integer' => 'User ID must be an integer',
+            'userId.exists' => 'User with this ID does not exist',
+
+            'role.required' => 'Role is required',
+            'role.string' => 'Role must be a string',
+            'role.in' => 'Role must be either ADMIN or SUPER_ADMIN',
+        ];
+    }
 }

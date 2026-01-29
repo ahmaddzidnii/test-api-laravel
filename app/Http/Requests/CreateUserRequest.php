@@ -50,4 +50,29 @@ class CreateUserRequest extends FormRequest
             ],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Name is required',
+            'name.string' => 'Name must be a string',
+            'name.min' => 'Name must be at least :min characters',
+            'name.max' => 'Name cannot exceed :max characters',
+
+            'username.required' => 'Username is required',
+            'username.string' => 'Username must be a string',
+            'username.email' => 'Username must be a valid email address',
+            'username.max' => 'Username cannot exceed :max characters',
+            'username.unique' => 'Username is already taken',
+
+            'email.string' => 'Email must be a string',
+            'email.email' => 'Email must be a valid email address',
+            'email.max' => 'Email cannot exceed :max characters',
+            'email.unique' => 'Email is already taken',
+
+            'password.required' => 'Password is required',
+            'password.string' => 'Password must be a string',
+            'password.min' => 'Password must be at least :min characters',
+        ];
+    }
 }

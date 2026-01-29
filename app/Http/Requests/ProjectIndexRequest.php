@@ -33,6 +33,27 @@ class ProjectIndexRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'search.string' => 'Search must be a string',
+            'search.max' => 'Search cannot exceed 100 characters',
+
+            'sort_by.string' => 'Sort by must be a string',
+            'sort_by.in' => 'Sort by must be one of: title, launch_year, created_at',
+
+            'sort_dir.string' => 'Sort direction must be a string',
+            'sort_dir.in' => 'Sort direction must be either asc or desc',
+
+            'page.integer' => 'Page must be an integer',
+            'page.min' => 'Page must be at least :min',
+
+            'per_page.integer' => 'Per page must be an integer',
+            'per_page.min' => 'Per page must be at least :min',
+            'per_page.max' => 'Per page cannot exceed :max',
+        ];
+    }
+
     /**
      * Optional: default value
      */

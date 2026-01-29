@@ -30,6 +30,17 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'username.required' => 'Username is required',
+            'username.string' => 'Username must be a string',
+
+            'password.required' => 'Password is required',
+            'password.string' => 'Password must be a string',
+        ];
+    }
+
     /**
      * Attempt to authenticate the request's credentials.
      *
