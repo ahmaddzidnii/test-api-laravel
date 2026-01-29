@@ -10,12 +10,11 @@ class ProjectImage extends Model
     use HasFactory;
 
     protected $fillable = [
-        'key',
+        'path',
         'file_name',
         'file_type',
         'file_size',
         'project_id',
-        'image_url',
         'is_primary',
         'is_used',
     ];

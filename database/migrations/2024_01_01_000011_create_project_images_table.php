@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('project_images', function (Blueprint $table) {
             $table->id();
-            $table->string('key')->unique();
+            $table->string('path')->unique();
             $table->string('file_name');
             $table->string('file_type');
             $table->integer('file_size');
-            $table->foreignId('project_id')->constrained()->onDelete('cascade');
-            $table->string('image_url');
+            $table->foreignId('project_id')->nullable()->constrained()->onDelete('set null');
             $table->boolean('is_primary')->default(false);
             $table->boolean('is_used')->default(true);
             $table->timestamps();

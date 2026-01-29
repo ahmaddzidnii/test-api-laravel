@@ -35,10 +35,12 @@ trait HttpResponses
             'message'    => $message,
             'data'       => $data,
             'pagination' => [
-                'page'       => $paginator->currentPage(),
-                'perpage'    => $paginator->perPage(),
-                'total'      => $paginator->total(),
-                'totalPages' => $paginator->lastPage(),
+                'currentPage' => $paginator->currentPage(),
+                'perPage'     => $paginator->perPage(),
+                'from'        => $paginator->firstItem(),
+                'to'          => $paginator->lastItem(),
+                'total'       => $paginator->total(),
+                'lastPage'    => $paginator->lastPage(),
             ],
         ], $code, [], JSON_UNESCAPED_SLASHES);
     }

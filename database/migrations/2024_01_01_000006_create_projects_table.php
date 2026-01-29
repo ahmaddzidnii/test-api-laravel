@@ -23,6 +23,8 @@ return new class extends Migration
             $table->enum('status', ['PRODUCTION', 'BETA_LAUNCH'])->default('BETA_LAUNCH');
             $table->timestamps();
 
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+
             $table->index('title');
         });
     }

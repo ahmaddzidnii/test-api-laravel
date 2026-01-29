@@ -34,19 +34,27 @@ Route::group([
 ], function () {
     Route::get('/', [ProjectController::class, 'listProjects']);
     Route::get('/{projectId}', [ProjectController::class, 'getProjectByIdOrSlug']);
-    Route::get('/tech-stacks/lists', [App\Http\Controllers\TechnologyController::class, 'listTechStacks']);
-
     Route::middleware(['jwt.extract', 'jwt.required'])->group(function () {
         Route::post('/', [ProjectController::class, 'createProject']);
-        Route::patch('/change-slug/{id}', [ProjectController::class, 'changeProjectSlug']);
         Route::delete('/{projectId}', [ProjectController::class, 'deleteProject']);
+        Route::patch('/change-slug/{id}', [ProjectController::class, 'changeProjectSlug']);
+
         Route::patch('/{projectId}/basic-info', [ProjectController::class, 'updateProjectBasicInfo']);
         Route::post('/{projectId}/technologies', [ProjectController::class, 'syncProjectTechnologies']);
         Route::post('/{projectId}/details', [ProjectController::class, 'syncProjectDetails']);
+
         Route::post('/{projectId}/testimonial', [ProjectController::class, 'createProjectTestimonial']);
         Route::delete('/{projectId}/testimonial/{testimonialId}', [ProjectController::class, 'deleteProjectTestimonial']);
         Route::patch('/{projectId}/testimonial/{testimonialId}', [ProjectController::class, 'updateProjectTestimonial']);
 
-        Route::post('/{projectId}/images', [ProjectController::class, 'uploadProjectImage']);
+        Route::post('/{projectId}/images/upload', [ProjectController::class, 'uploadProjectImage']);
+        Route::patch('/{projectId}/images/{imageId}', [ProjectController::class, 'setPrimaryProjectImage']);
+        Route::delete('/{projectId}/images/{imageId}', [ProjectController::class, 'deleteProjectImage']);
     });
+});
+
+Route::group([
+    'prefix' => 'technologies',
+], function () {
+    Route::get('/', [App\Http\Controllers\TechnologyController::class, 'index']);
 });

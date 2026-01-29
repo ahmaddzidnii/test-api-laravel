@@ -3,18 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateProjectRequest;
+use App\Http\Requests\ProjectIndexRequest;
+use App\Http\Resources\ProjectImageResource;
 use App\Http\Resources\ProjectResource;
 use App\HttpResponses;
 use App\Models\Project;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
     use HttpResponses;
 
-    public function listProjects()
+    public function listProjects(ProjectIndexRequest $request)
     {
-        $projects = Project::with(['technologies', 'thumbnail'])->paginate(10);
-        return $this->successWithPagination(ProjectResource::collection($projects), $projects, 'Projects retrieved successfully');
+        $projects = Project::query()
+            ->with(['technologies', 'thumbnail'])
+            ->search($request->search)
+            ->sort($request->sort_by, $request->sort_dir)
+            ->paginate($request->per_page)
+            ->withQueryString();
+
+        return $this->successWithPagination(
+            ProjectResource::collection($projects),
+            $projects,
+            'Projects retrieved successfully'
+        );
     }
 
     public function createProject(CreateProjectRequest $request)
@@ -122,5 +138,57 @@ class ProjectController extends Controller
     public function updateProjectTestimonial($projectId, $testimonialId)
     {
         // Implementation for updating project testimonial
+    }
+
+    public function uploadProjectImage(Request $request, $projectId)
+    {
+        $request->validate([
+            'image' => 'required|file|max:10240', // Max 10MB
+        ]);
+
+        $project = Project::find($projectId);
+
+        if (!$project) {
+            return $this->error('Project not found', 404);
+        }
+
+        $file = $request->file('image');
+
+        try {
+            return DB::transaction(function () use ($request, $project) {
+                $file = $request->file('image');
+
+                $originalFilename = $file->getClientOriginalName();
+                $extension = $file->extension();
+                $fileSize = $file->getSize();
+
+                // Generate unique filename
+                $filename = Str::ulid() . '.' . $extension;
+
+                // Store file
+                $path = Storage::putFileAs('project-images', $file, $filename);
+
+                // Save to database 
+                $projectImage = $project->images()->create([
+                    'path' => $path,
+                    'file_name' => $originalFilename,
+                    'file_type' => $extension,
+                    'file_size' => $fileSize,
+                    'is_primary' => false,
+                    'is_used' => true,
+                ]);
+
+                $response = new ProjectImageResource($projectImage);
+
+                return $this->success($response, 'Image uploaded successfully');
+            });
+        } catch (\Exception $e) {
+            // If transaction fails, delete uploaded file if exists
+            if (isset($path) && Storage::exists($path)) {
+                Storage::delete($path);
+            }
+
+            return $this->error('Failed to upload image: ' . $e->getMessage(), 500);
+        }
     }
 }
