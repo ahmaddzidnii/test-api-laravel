@@ -5,6 +5,10 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return response()->json(['apiVersion' => '1.0']);
+});
+
 Route::group([
     'prefix' => 'auth',
     'controller' => AuthController::class,
