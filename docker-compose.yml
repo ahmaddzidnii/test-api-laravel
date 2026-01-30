@@ -1,0 +1,66 @@
+services:
+  # Service 1: Aplikasi PHP
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    image: laravel-app
+    container_name: laravel-app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./storage/:/var/www/storage
+      - ./bootestrap/cache/:/var/www/bootstrap/cache
+    networks:
+      - laravel-net
+
+    depends_on:
+      - db
+
+  # Service 2: Web Server Nginx
+  web:
+    image: nginx:alpine
+    container_name: laravel-nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "1234:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - laravel-net
+    depends_on:
+      - app
+
+  # Service 3: Database MySQL
+  db:
+    image: mysql:8.0
+    container_name: laravel-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - laravel-net
+
+# Define Network
+networks:
+  laravel-net:
+    driver: bridge
+
+# Define Volume untuk Persistensi Data
+volumes:
+  dbdata:
+    driver: local

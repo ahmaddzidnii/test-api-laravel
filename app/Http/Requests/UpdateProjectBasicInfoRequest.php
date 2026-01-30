@@ -18,7 +18,7 @@ class UpdateProjectBasicInfoRequest extends FormRequest
             'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'string'],
             'about' => ['sometimes', 'string'],
-            'status' => ['sometimes', 'string', Rule::in(['DRAFT', 'PRODUCTION', 'ARCHIVED'])],
+            'status' => ['sometimes', 'string', Rule::in(['PUBLIC', 'PRIVATE'])],
             'duration' => ['sometimes', 'nullable', 'string', 'max:100'],
             'launchYear' => ['sometimes', 'nullable', 'string', 'max:4'],
             'demoUrl' => ['sometimes', 'nullable', 'url', 'max:500'],

@@ -14,7 +14,7 @@ class SyncProjectTechnologiesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'technologies' => ['required', 'array'],
+            'technologies' => ['present', 'array'],
             'technologies.*.id' => ['required', 'integer', 'exists:technologies,id'],
         ];
     }

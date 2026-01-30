@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('duration')->nullable();
             $table->string('launch_year')->nullable();
             $table->string('demo_url')->nullable();
-            $table->enum('status', ['PRODUCTION', 'BETA_LAUNCH'])->default('BETA_LAUNCH');
+            $table->enum('status', ['PUBLIC', 'PRIVATE'])->default('PRIVATE');
             $table->timestamps();
 
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
