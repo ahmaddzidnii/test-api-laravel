@@ -1,36 +1,58 @@
-# Gunakan PHP 8.3 sesuai request composer.lock Anda sebelumnya
+# =========================
+# Stage 1: Build dependency
+# =========================
+FROM composer:2 AS vendor
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader
+
+# =========================
+# Stage 2: Runtime
+# =========================
 FROM php:8.3-fpm
 
-# Install system dependencies
-# Kita butuh 'libpq-dev' untuk Postgres
+# Install system & PHP extensions
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
     zip \
-    unzip
+    unzip \
+ && docker-php-ext-install \
+    pdo_mysql \
+    pdo_pgsql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-# INSTALL KEDUANYA: pdo_mysql DAN pdo_pgsql
-RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
-
-# Git safe directory (supaya tidak error ownership lagi)
-RUN git config --global --add safe.directory /var/www
-
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Create non-root user
+RUN useradd -u 1000 -m laravel
 
 WORKDIR /var/www
 
-COPY . /var/www
-COPY --chown=www-data:www-data . /var/www
+# Copy application source
+COPY . .
 
-USER www-data
+# Copy vendor from build stage
+COPY --from=vendor /app/vendor ./vendor
+
+# Set permission for Laravel writable dirs
+RUN chown -R laravel:laravel \
+    storage \
+    bootstrap/cache
+
+USER laravel
 
 EXPOSE 9000
 CMD ["php-fpm"]
