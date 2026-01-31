@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    image: laravel-app:prod
     container_name: laravel-app
     restart: unless-stopped
     working_dir: /var/www
