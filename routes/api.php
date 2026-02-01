@@ -61,7 +61,7 @@ Route::prefix('admin/projects')
         Route::post('/{projectId}/technologies', [ProjectAdminController::class, 'syncTechnologies'])->where('projectId', '[0-9]+');
         Route::post('/{projectId}/details', [ProjectAdminController::class, 'syncDetails'])->where('projectId', '[0-9]+');
 
-        Route::post('/{projectId}/testimonials', [ProjectAdminController::class, 'storeTestimonial'])->where('projectId', '[0-9]+');
+        Route::post('/{projectId}/testimonials', [ProjectAdminController::class, 'createTestimonial'])->where('projectId', '[0-9]+');
         Route::patch('/{projectId}/testimonials/{testimonialId}', [ProjectAdminController::class, 'updateTestimonial'])->where(['projectId' => '[0-9]+', 'testimonialId' => '[0-9]+']);
         Route::delete('/{projectId}/testimonials/{testimonialId}', [ProjectAdminController::class, 'deleteTestimonial'])->where(['projectId' => '[0-9]+', 'testimonialId' => '[0-9]+']);
 

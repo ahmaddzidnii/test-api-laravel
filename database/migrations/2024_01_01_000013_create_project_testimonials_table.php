@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('role');
-            $table->string('avatar_url')->nullable();
+            $table->text('avatar_url')->nullable();
             $table->integer('rating');
             $table->text('testimonial');
             $table->timestamps();

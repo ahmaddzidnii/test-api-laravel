@@ -93,7 +93,7 @@ class Project extends Model
     }
 
     /**
-     * Search scope
+     * Search scope - Database agnostic
      */
     public function scopeSearch($query, ?string $search)
     {
@@ -101,10 +101,15 @@ class Project extends Model
             return $query;
         }
 
-        return $query->where(function ($q) use ($search) {
-            $q->where('title', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%")
-                ->orWhere('about', 'like', "%{$search}%");
+        $searchTerm = '%' . strtolower($search) . '%';
+
+        return $query->where(function ($q) use ($searchTerm) {
+            $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
+                ->orWhereRaw('LOWER(description) LIKE ?', [$searchTerm])
+                ->orWhere(function ($subQ) use ($searchTerm) {
+                    $subQ->whereNotNull('about')
+                        ->whereRaw('LOWER(about) LIKE ?', [$searchTerm]);
+                });
         });
     }
 
