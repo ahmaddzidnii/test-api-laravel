@@ -1,12 +1,17 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProjectAdminController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return response()->json(['apiVersion' => '1.0']);
+    return response()->json([
+        'apiVersion' => '1.0',
+        'apiDescription' => 'SCIT Website API',
+        'serverTime' => now()->toDateTimeString(),
+    ]);
 });
 
 Route::group([
@@ -30,32 +35,40 @@ Route::group([
     Route::get('/', 'getUserInfo');
     Route::patch('/', 'updateUserInfo');
     Route::post('/', 'createUser');
-    Route::delete('/{userId}', 'deleteUser');
+    Route::delete('/{userId}', 'deleteUser')->where('userId', '[0-9]+');
 });
 
 Route::group([
     'prefix' => 'projects',
 ], function () {
     Route::get('/', [ProjectController::class, 'listProjects']);
-    Route::get('/{projectId}', [ProjectController::class, 'getProjectByIdOrSlug']);
-    Route::middleware(['jwt.extract', 'jwt.required'])->group(function () {
-        Route::post('/', [ProjectController::class, 'createProject']);
-        Route::delete('/{projectId}', [ProjectController::class, 'deleteProject']);
-        Route::patch('/change-slug/{id}', [ProjectController::class, 'changeProjectSlug']);
-
-        Route::patch('/{projectId}/basic-info', [ProjectController::class, 'updateProjectBasicInfo']);
-        Route::post('/{projectId}/technologies', [ProjectController::class, 'syncProjectTechnologies']);
-        Route::post('/{projectId}/details', [ProjectController::class, 'syncProjectDetails']);
-
-        Route::post('/{projectId}/testimonials', [ProjectController::class, 'createProjectTestimonial']);
-        Route::delete('/{projectId}/testimonials/{testimonialId}', [ProjectController::class, 'deleteProjectTestimonial']);
-        Route::patch('/{projectId}/testimonials/{testimonialId}', [ProjectController::class, 'updateProjectTestimonial']);
-
-        Route::post('/{projectId}/images/upload', [ProjectController::class, 'uploadProjectImage']);
-        Route::patch('/{projectId}/images/{imageId}', [ProjectController::class, 'setPrimaryProjectImage']);
-        Route::delete('/{projectId}/images/{imageId}', [ProjectController::class, 'deleteProjectImage']);
-    });
+    Route::get('/{projectId}', [ProjectController::class, 'getProjectByIdOrSlug'])->where('projectId', '[0-9a-zA-Z\-]+');
 });
+
+Route::prefix('admin/projects')
+    ->middleware(['jwt.extract', 'jwt.required'])
+    ->group(function () {
+
+        Route::get('/', [ProjectAdminController::class, 'listProjects']);
+        Route::get('/{projectId}', [ProjectAdminController::class, 'getProjectByIdOrSlug'])->where('projectId', '[0-9a-zA-Z\-]+');
+
+        Route::post('/', [ProjectAdminController::class, 'createProject']);
+        Route::delete('/{projectId}', [ProjectAdminController::class, 'deleteProject'])->where('projectId', '[0-9]+');
+
+        Route::patch('/change-slug/{id}', [ProjectAdminController::class, 'changeSlug'])->where('id', '[0-9]+');
+        Route::patch('/{projectId}/basic-info', [ProjectAdminController::class, 'updateBasicInfo'])->where('projectId', '[0-9]+');
+
+        Route::post('/{projectId}/technologies', [ProjectAdminController::class, 'syncTechnologies'])->where('projectId', '[0-9]+');
+        Route::post('/{projectId}/details', [ProjectAdminController::class, 'syncDetails'])->where('projectId', '[0-9]+');
+
+        Route::post('/{projectId}/testimonials', [ProjectAdminController::class, 'storeTestimonial'])->where('projectId', '[0-9]+');
+        Route::patch('/{projectId}/testimonials/{testimonialId}', [ProjectAdminController::class, 'updateTestimonial'])->where(['projectId' => '[0-9]+', 'testimonialId' => '[0-9]+']);
+        Route::delete('/{projectId}/testimonials/{testimonialId}', [ProjectAdminController::class, 'deleteTestimonial'])->where(['projectId' => '[0-9]+', 'testimonialId' => '[0-9]+']);
+
+        Route::post('/{projectId}/images/upload', [ProjectAdminController::class, 'uploadImage'])->where('projectId', '[0-9]+');
+        Route::patch('/{projectId}/images/{imageId}', [ProjectAdminController::class, 'setPrimaryImage'])->where(['projectId' => '[0-9]+', 'imageId' => '[0-9]+']);
+        Route::delete('/{projectId}/images/{imageId}', [ProjectAdminController::class, 'deleteImage'])->where(['projectId' => '[0-9]+', 'imageId' => '[0-9]+']);
+    });
 
 Route::group([
     'prefix' => 'technologies',
