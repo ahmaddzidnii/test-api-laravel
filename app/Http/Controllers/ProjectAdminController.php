@@ -484,4 +484,35 @@ class ProjectAdminController extends Controller
 
         return $this->success(null, 'Image deleted successfully');
     }
+
+    public function updateVisibilityBatch(Request $request)
+    {
+        $data = $request->validate([
+            'project_ids'   => ['required', 'array', 'min:1'],
+            'project_ids.*' => ['integer', 'exists:projects,id'],
+            'visibility'     => ['required', 'in:PUBLIC,PRIVATE'],
+        ]);
+
+
+        $projects = Project::whereIn('id', $data['project_ids'])->get();
+
+        foreach ($projects as $project) {
+            $this->authorize('update', $project);
+        }
+
+        Project::whereIn('id', $data['project_ids'])
+            ->update([
+                'status' => $data['visibility'],
+            ]);
+
+
+        $updatedIds = $projects->pluck('id')->toArray();
+
+        $response = [
+            'updatedProjectIds' => $updatedIds,
+            'visibility' => $data['visibility'],
+        ];
+
+        return $this->success($response, 'Project visibility updated successfully');
+    }
 }

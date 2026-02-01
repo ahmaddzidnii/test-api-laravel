@@ -68,6 +68,8 @@ Route::prefix('admin/projects')
         Route::post('/{projectId}/images/upload', [ProjectAdminController::class, 'uploadImage'])->where('projectId', '[0-9]+');
         Route::patch('/{projectId}/images/{imageId}', [ProjectAdminController::class, 'setPrimaryImage'])->where(['projectId' => '[0-9]+', 'imageId' => '[0-9]+']);
         Route::delete('/{projectId}/images/{imageId}', [ProjectAdminController::class, 'deleteImage'])->where(['projectId' => '[0-9]+', 'imageId' => '[0-9]+']);
+
+        Route::post('/visibility', [ProjectAdminController::class, 'updateVisibilityBatch']);
     });
 
 Route::group([
