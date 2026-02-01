@@ -85,12 +85,12 @@ class ProjectAdminController extends Controller
 
     public function changeSlug($id)
     {
-        $this->authorize('update', Project::class);
-
         $project = Project::find($id);
         if (!$project) {
             return $this->error('Project not found', 404);
         }
+
+        $this->authorize('update', $project);
 
         $newSlug = request()->input('slug');
 
@@ -110,12 +110,12 @@ class ProjectAdminController extends Controller
 
     public function deleteProject($projectId)
     {
-        $this->authorize('delete', Project::class);
-
         $project = Project::find($projectId);
         if (!$project) {
             return $this->error('Project not found', 404);
         }
+
+        $this->authorize('delete', $project);
 
         $project->delete();
 
@@ -124,7 +124,6 @@ class ProjectAdminController extends Controller
 
     public function updateBasicInfo(UpdateProjectBasicInfoRequest $request, $projectId)
     {
-        $this->authorize('update', Project::class);
 
         $project = Project::find($projectId);
 
@@ -133,6 +132,8 @@ class ProjectAdminController extends Controller
         }
 
         $requestedData = $request->validated();
+
+        $this->authorize('update', $project);
 
         // Map camelCase keys to snake_case for database
         $updateData = [];
@@ -176,13 +177,13 @@ class ProjectAdminController extends Controller
 
     public function syncTechnologies(SyncProjectTechnologiesRequest $request, $projectId)
     {
-        $this->authorize('update', Project::class);
-
         $project = Project::find($projectId);
 
         if (!$project) {
             return $this->error('Project not found', 404);
         }
+
+        $this->authorize('update', $project);
 
         $requestedData = $request->validated();
 
@@ -205,13 +206,13 @@ class ProjectAdminController extends Controller
 
     public function syncDetails(SyncProjectDetailsRequest $request, $projectId)
     {
-        $this->authorize('update', Project::class);
-
         $project = Project::find($projectId);
 
         if (!$project) {
             return $this->error('Project not found', 404);
         }
+
+        $this->authorize('update', $project);
 
         $requestedData = $request->validated();
 
@@ -263,13 +264,13 @@ class ProjectAdminController extends Controller
 
     public function createTestimonial(CreateProjectTestimonialRequest $request, $projectId)
     {
-        $this->authorize('update', Project::class);
-
         $project = Project::find($projectId);
 
         if (!$project) {
             return $this->error('Project not found', 404);
         }
+
+        $this->authorize('update', $project);
 
         $requestedData = $request->validated();
 
@@ -289,13 +290,13 @@ class ProjectAdminController extends Controller
 
     public function deleteTestimonial($projectId, $testimonialId)
     {
-        $this->authorize('update', Project::class);
-
         $project = Project::find($projectId);
 
         if (!$project) {
             return $this->error('Project not found', 404);
         }
+
+        $this->authorize('update', $project);
 
         $testimonial = $project->testimonials()->find($testimonialId);
 
@@ -310,13 +311,13 @@ class ProjectAdminController extends Controller
 
     public function updateTestimonial(UpdateProjectTestimonialRequest $request, $projectId, $testimonialId)
     {
-        $this->authorize('update', Project::class);
-
         $project = Project::find($projectId);
 
         if (!$project) {
             return $this->error('Project not found', 404);
         }
+
+        $this->authorize('update', $project);
 
         $testimonial = $project->testimonials()->find($testimonialId);
 
@@ -416,13 +417,13 @@ class ProjectAdminController extends Controller
 
     public function setPrimaryImage(SetPrimaryImageRequest $request, $projectId, $imageId)
     {
-        $this->authorize('update', Project::class);
-
         $project = Project::find($projectId);
 
         if (!$project) {
             return $this->error('Project not found', 404);
         }
+
+        $this->authorize('update', $project);
 
         $image = $project->images()->find($imageId);
 
@@ -446,13 +447,13 @@ class ProjectAdminController extends Controller
 
     public function deleteImage($projectId, $imageId)
     {
-        $this->authorize('update', Project::class);
-
         $project = Project::find($projectId);
 
         if (!$project) {
             return $this->error('Project not found', 404);
         }
+
+        $this->authorize('update', $project);
 
         $image = $project->images()->find($imageId);
 

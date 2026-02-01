@@ -48,9 +48,8 @@ class ProjectPolicy
     {
         /**
          * Only super admin and admin can update projects
-         * Admin can only update their own projects
          */
-        return $user->isSuperAdmin() || $project->user_id === $user->id;
+        return $user->isSuperAdmin() || $user->isAdmin();
     }
 
     /**
@@ -60,9 +59,8 @@ class ProjectPolicy
     {
         /**
          * Only super admin and admin can delete projects
-         * Admin can only delete their own projects
          */
-        return $user->isSuperAdmin() || $project->user_id === $user->id;
+        return $user->isSuperAdmin() || $user->isAdmin();
     }
 
     /**
@@ -72,9 +70,8 @@ class ProjectPolicy
     {
         /**
          * Super admin can restore any project
-         * Admin can only restore their own projects
          */
-        return $user->isSuperAdmin() || $project->user_id === $user->id;
+        return $user->isSuperAdmin() || $user->isAdmin();
     }
 
     /**
@@ -84,8 +81,7 @@ class ProjectPolicy
     {
         /**
          * Super admin can permanently delete any project
-         * Admin can only permanently delete their own projects
          */
-        return $user->isSuperAdmin() || $project->user_id === $user->id;
+        return $user->isSuperAdmin() || $user->isAdmin();
     }
 }
