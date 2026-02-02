@@ -86,6 +86,14 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
+     * Get the galleries uploaded by the user.
+     */
+    public function galleries()
+    {
+        return $this->hasMany(Gallery::class, 'uploaded_by');
+    }
+
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed

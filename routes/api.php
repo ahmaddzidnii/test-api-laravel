@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GalleryAdminController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\ProjectAdminController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\UserController;
@@ -45,6 +47,12 @@ Route::group([
     Route::get('/{projectId}', [ProjectController::class, 'getProjectByIdOrSlug'])->where('projectId', '[0-9a-zA-Z\-]+');
 });
 
+Route::group([
+    'prefix' => 'galleries',
+], function () {
+    Route::get('/', GalleryController::class);
+});
+
 Route::prefix('admin/projects')
     ->middleware(['jwt.extract', 'jwt.required'])
     ->group(function () {
@@ -71,6 +79,15 @@ Route::prefix('admin/projects')
 
         Route::post('/visibility', [ProjectAdminController::class, 'updateVisibilityBatch']);
     });
+
+Route::group([
+    'prefix' => 'admin/galleries',
+    'middleware' => ['jwt.extract', 'jwt.required'],
+], function () {
+    Route::get('/', [GalleryAdminController::class, 'index']);
+    Route::post('/', [GalleryAdminController::class, 'store']);
+    Route::delete('/{galleryId}', [GalleryAdminController::class, 'destroy'])->where('galleryId', '[0-9]+');
+});
 
 Route::group([
     'prefix' => 'technologies',

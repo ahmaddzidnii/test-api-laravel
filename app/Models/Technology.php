@@ -35,8 +35,8 @@ class Technology extends Model
         if (!$search) {
             return $query;
         }
-
-        return $query->where('name', 'like', "%{$search}%");
+        $searchTerm = strtolower($search);
+        return $query->whereRaw('LOWER(name) LIKE ?', ['%' . $searchTerm . '%']);
     }
 
     /**
